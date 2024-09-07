@@ -3,7 +3,8 @@ from google.cloud import storage
 from dotenv import load_dotenv
 import pandas as pd
 import os
-from app_log.logger import MultiFileLogger
+from app_log.logger import setup_logger
+
 os.environ['key.json'] = 'C:/Users/hardi/Documents/Eccomers/config/key.json'
 creds  = os.getenv('key.json')
 
@@ -12,7 +13,7 @@ class Google_storage:
         self.bucket_name = bucket_name
         self.key_path = key_path
         self.path ="C:/Users/hardi/Documents/Eccomers"
-        self.logger = MultiFileLogger()
+        self.logger = setup_logger(__file__)
         
 
     def get_client(self):

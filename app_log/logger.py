@@ -1,66 +1,48 @@
-import os
 import logging
-
 import os
-import logging
+from datetime import datetime
 
-class MultiFileLogger:
-    def __init__(self):
-        self.logger = logging.getLogger(__name__)
-        self.logger.setLevel(logging.DEBUG)  # Set the default logging level
 
-        # Create log directories if they don't exist
-        self.create_log_directories()
 
-        # Define different handlers for different log levels
-        self.debug_handler = logging.FileHandler('logs/debug/debug.log')
-        self.info_handler = logging.FileHandler('logs/info/info.log')
-        self.warning_handler = logging.FileHandler('logs/warning/warning.log')
-        self.error_handler = logging.FileHandler('logs/error/error.log')
+def setup_logger(script_file, log_level="info"):
+    """
+    Set up the logger to create logs under a folder structure like 'logs/<script_name>/<log_level>/<date>.log'.
+    :param script_file: The current script file name (__file__).
+    :param log_level: The logging level (e.g., 'error', 'info').
+    :return: Configured logger object.
+    """
+    # Get the script name (without the extension) dynamically
+    script_name = os.path.splitext(os.path.basename(script_file))[0]
+
+    # Get the current date in a specific format (for example: '09_07_2024')
+    current_date = datetime.now().strftime('%m_%d_%Y')
+
+    # Create the folder structure: logs/script_name/log_level/
+    logs_folder = os.path.join(os.getcwd(), "logs", script_name, log_level)
+    os.makedirs(logs_folder, exist_ok=True)
+
+    # Define the log file name based on the current date
+    log_file_name = f"{current_date}.log"
+    LOG_FILE_PATH = os.path.join(logs_folder, log_file_name)
+
+    # Configure the logger object
+    logger = logging.getLogger(script_name)
+
+    # Check if handlers are already added to avoid duplicates
+    if not logger.hasHandlers():
+        # Set the log level dynamically based on the input
+        logger.setLevel(getattr(logging, log_level.upper(), logging.INFO))
+
+        # Create a file handler
+        file_handler = logging.FileHandler(LOG_FILE_PATH)
+        file_handler.setLevel(getattr(logging, log_level.upper(), logging.INFO))
 
         # Define the log format
-        formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-        self.debug_handler.setFormatter(formatter)
-        self.info_handler.setFormatter(formatter)
-        self.warning_handler.setFormatter(formatter)
-        self.error_handler.setFormatter(formatter)
+        formatter = logging.Formatter("[ %(asctime)s ] %(lineno)d %(name)s - %(levelname)s - %(message)s")
+        file_handler.setFormatter(formatter)
 
-        # Set level for each handler
-        self.debug_handler.setLevel(logging.DEBUG)
-        self.info_handler.setLevel(logging.INFO)
-        self.warning_handler.setLevel(logging.WARNING)
-        self.error_handler.setLevel(logging.ERROR)
+        # Add the handler to the logger
+        logger.addHandler(file_handler)
 
-        # Add handlers to the logger
-        self.logger.addHandler(self.debug_handler)
-        self.logger.addHandler(self.info_handler)
-        self.logger.addHandler(self.warning_handler)
-        self.logger.addHandler(self.error_handler)
-
-    def create_log_directories(self):
-        # Create directories for different log levels if they don't exist
-        for level in ['debug', 'info', 'warning', 'error']:
-            log_dir = os.path.join('logs', level)
-            os.makedirs(log_dir, exist_ok=True)
-
-    def debug(self, message):
-        self.logger.debug(message)
-
-    def info(self, message):
-        self.logger.info(message)
-
-    def warning(self, message):
-        self.logger.warning(message)
-
-    def error(self, message):
-        self.logger.error(message)
-
-    def critical(self, message):
-        self.logger.critical(message)
-
-    def close(self):
-        for handler in [self.debug_handler, self.info_handler, self.warning_handler, self.error_handler]:
-            handler.close()
-
-# Example usage:
+    return logger
 
