@@ -32,36 +32,36 @@ query_task = BashOperator(
     dag=dag
 )
 
-# start_clutser = DataprocStartClusterOperator(
-#     task_id = 'start_clutser',
-#     project_id="hive-spark",
-#     region = "us-central1",
-#     cluster_name = "cluster-815e",
-#     dag=dag
-# )
+start_clutser = DataprocStartClusterOperator(
+    task_id = 'start_clutser',
+    project_id="hive-spark",
+    region = "us-central1",
+    cluster_name = "cluster-815e",
+    dag=dag
+)
 
-# PYSPARK_JOB = {
-#     "reference": {"project_id": "hive-spark"},
-#     "placement": {"cluster_name": "cluster-815e"},
-#     "pyspark_job": {"main_python_file_uri": "gs://ec-script/tran.py"},
-# }
+PYSPARK_JOB = {
+    "reference": {"project_id": "hive-spark"},
+    "placement": {"cluster_name": "cluster-815e"},
+    "pyspark_job": {"main_python_file_uri": "gs://ec-script/tran.py"},
+}
 
-# submit_pyspark = DataprocSubmitJobOperator(
-#     task_id='submit_pyspark_job',
-#     job=PYSPARK_JOB,
-#     region='us-central1',
-#     project_id='hive-spark',
-#     dag=dag,
+submit_pyspark = DataprocSubmitJobOperator(
+    task_id='submit_pyspark_job',
+    job=PYSPARK_JOB,
+    region='us-central1',
+    project_id='hive-spark',
+    dag=dag,
 
-# )
+)
 
-# stop_cluster = DataprocStopClusterOperator(
-#      task_id = 'stop_clutser',
-#     project_id="hive-spark",
-#     region = "us-central1",
-#     cluster_name = "cluster-815e",
-#     dag=dag
-# )
-# # Define task dependencies (if you have multiple tasks)
+stop_cluster = DataprocStopClusterOperator(
+     task_id = 'stop_clutser',
+    project_id="hive-spark",
+    region = "us-central1",
+    cluster_name = "cluster-815e",
+    dag=dag
+)
+# Define task dependencies (if you have multiple tasks)
 # start_clutser >> submit_pyspark >> stop_cluster
-query_task
+query_task >>  start_clutser >> submit_pyspark >> stop_cluster
