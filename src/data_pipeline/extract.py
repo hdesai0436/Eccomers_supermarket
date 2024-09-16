@@ -1,26 +1,21 @@
-from config.postgresql import PostgreSQLExtractor
-from config.google_storage import Google_storage
+import sys
 import os
+sys.path.append('/home/airflow/gcs')
+from plugins.config.postgresql import PostgreSQLExtractor
 
+gcs_bucket_name = 'eccomer_supermarket'
 
-class DataExtractor:
-    def __init__(self,path,tables):
-        self.path = path
-        self.tables = tables
-        self.postgre = PostgreSQLExtractor()
-        self.google = Google_storage()
-        self.conn = self.postgre.create_connection()
-        self.output_dir = os.path.join(self.path,'data','raw')
+    # List of tables to extract
+tables = ['categories','customer','order_items','orders','products','promotion','promotion_product','returned_items','sales','store_locations','inventory'] # Replace with your actual table names
 
-    def extract_postgre_data(self):
-        if self.conn:
-             self.postgre.extract_mutiple_tables(self.conn,self.tables,self.output_dir)
-             self.conn.close()
+# Initialize the PostgreSQLExtractor with GCS bucket
+extractor = PostgreSQLExtractor(gcs_bucket_name=gcs_bucket_name)
 
-    def upload_gcp(self):
-        self.google.upload(self.tables)
+# Create PostgreSQL connection
+conn = extractor.create_connection()
 
-
+# Extract data from tables and upload to GCS
+extractor.extract_multiple_tables_to_gcs(conn, tables)
 
 
     

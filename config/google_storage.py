@@ -1,15 +1,15 @@
 import datetime
 from google.cloud import storage
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 import pandas as pd
 import os
-from app_log.logger import setup_logger
+from config.app_log.logger import setup_logger
 
 os.environ['key.json'] = 'C:/Users/hardi/Documents/Eccomers/config/key.json'
 creds  = os.getenv('key.json')
 
 class Google_storage:
-    def __init__(self,bucket_name='eccomer_supermarket',key_path= creds):
+    def __init__(self,bucket_name='eccomer_supermarket'):
         self.bucket_name = bucket_name
         self.key_path = key_path
         self.path ="C:/Users/hardi/Documents/Eccomers"
